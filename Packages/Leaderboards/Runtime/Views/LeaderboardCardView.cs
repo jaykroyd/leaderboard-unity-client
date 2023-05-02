@@ -19,7 +19,7 @@ namespace Leaderboards
             buttonComponent.onClick.AddListener(OnClick);
         }
 
-        public void Setup(Guid id, string name, long capacity)
+        public void Setup(Guid id, string name, int capacity)
         {
             this.leaderboardId = id;
             titleComponent.text = $"ID: {id}\nName: {name}\nCapacity: {capacity}";

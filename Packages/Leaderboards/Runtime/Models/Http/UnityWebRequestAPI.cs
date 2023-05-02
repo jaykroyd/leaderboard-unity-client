@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Unity.Plastic.Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Networking;
@@ -9,21 +10,32 @@ namespace Leaderboards
 {
     public class UnityWebRequestAPI
     {
-        public struct Config
+        public struct Config : IUnityWebRequestConfiguration
         {
-            public string BaseUrl;
-            public int Version;
-            public string Subdomain;
             public string ApiKey;
+            public string BaseUrl;            
+            public string Subdomain;           
+            public int Version;
+
+            string IUnityWebRequestConfiguration.ApiKey => ApiKey;
+            string IUnityWebRequestConfiguration.BaseUrl => BaseUrl;
+            string IUnityWebRequestConfiguration.Subdomain => Subdomain;
+            int IUnityWebRequestConfiguration.Version => Version;
         }
 
         protected ILogger logger = default;
         protected Config config = default;
 
-        public UnityWebRequestAPI(ILogger logger, Config config)
+        public UnityWebRequestAPI(ILogger logger, IUnityWebRequestConfiguration config)
         {
             this.logger = logger;
-            this.config = config;
+            this.config = new Config 
+            {
+                ApiKey = config.ApiKey,
+                BaseUrl = config.BaseUrl,
+                Subdomain = config.Subdomain,
+                Version = config.Version,
+            };
         }
 
         public void GET<T2>(string endpoint, UnityAction<T2> onSuccess, UnityAction<string> onFailed) where T2 : IResponse, new()
@@ -45,7 +57,6 @@ namespace Leaderboards
         {
             var url = BuildURL(endpoint);
             UnityWebRequest www = CreateUnityWebPostRequest(bodyModel, url);
-           
             DoRequest(www, onSuccess, onFailed);
         }
 
@@ -64,7 +75,7 @@ namespace Leaderboards
                 if (isError)
                 {
                     OnFailed(www.url, www.error);
-                    onFailed?.Invoke(www.error);
+                    onFailed?.Invoke(www.error + " | " + response.Error);
                 }
                 else
                 {
@@ -101,7 +112,7 @@ namespace Leaderboards
 
         private byte[] BuildBody<T>(T model)
         {
-            var json = JsonUtility.ToJson(model);
+            var json = JsonConvert.SerializeObject(model);
             return Encoding.UTF8.GetBytes(json);
         }
 
@@ -111,7 +122,7 @@ namespace Leaderboards
             if (request.downloadedBytes > 0)
             {
                 var json = Encoding.UTF8.GetString(request.downloadHandler.data);
-                resp = JsonUtility.FromJson<T>(json);
+                resp = JsonConvert.DeserializeObject<T>(json);
             }
             else
             {

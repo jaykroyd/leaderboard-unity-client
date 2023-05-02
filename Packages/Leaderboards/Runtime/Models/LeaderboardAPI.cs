@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.Events;
+using UnityEngine.Networking;
 
 namespace Leaderboards
 {
@@ -9,7 +11,20 @@ namespace Leaderboards
         private const int LEADERBOARD_MODE_HIGHSCORE = 0;
         private const int LEADERBOARD_MODE_INCREMENTAL = 1;
 
-        public LeaderboardAPI(ILogger logger, Config config) : base(logger, config)
+        public new struct Config : ILeaderboardAPIConfiguration
+        {
+            public string ApiKey;
+            public string BaseUrl;
+            public string Subdomain;
+            public int Version;
+
+            string IUnityWebRequestConfiguration.ApiKey => ApiKey;
+            string IUnityWebRequestConfiguration.BaseUrl => BaseUrl;
+            string IUnityWebRequestConfiguration.Subdomain => Subdomain;
+            int IUnityWebRequestConfiguration.Version => Version;
+        }
+
+        public LeaderboardAPI(ILogger logger, ILeaderboardAPIConfiguration config) : base(logger, config)
         {
 
         }
@@ -60,7 +75,7 @@ namespace Leaderboards
         #endregion
 
         #region CREATE_LEADERBOARDS
-        public void CreateHighscoreLeaderboard(string name, long capacity, UnityAction<Leaderboard> onSuccess, UnityAction<string> onFailed)
+        public void CreateHighscoreLeaderboard(string name, int capacity, UnityAction<Leaderboard> onSuccess, UnityAction<string> onFailed)
         {
             var req = new CreateLeaderboardRequest
             {
@@ -72,7 +87,7 @@ namespace Leaderboards
             CreateLeaderboard(req, onSuccess, onFailed);
         }
 
-        public void CreateIncrementalLeaderboard(string name, long capacity, UnityAction<Leaderboard> onSuccess, UnityAction<string> onFailed)
+        public void CreateIncrementalLeaderboard(string name, int capacity, UnityAction<Leaderboard> onSuccess, UnityAction<string> onFailed)
         {
             var req = new CreateLeaderboardRequest
             {
@@ -95,12 +110,35 @@ namespace Leaderboards
         }
         #endregion
 
-        #region GET_PARTICIPANTS
+        #region PARTICIPANTS
         public void GetLeaderboardParticipants(Guid leaderboardID, UnityAction<LeaderboardParticipant[]> onSuccess, UnityAction<string> onFailed)
         {
             GET<GetLeaderboardParticipantsResponse>(
                 $"/leaderboards/{leaderboardID}/participants",
                 (resp) => { onSuccess(resp.participants.Select(x => x.ToLeaderboardParticipant()).ToArray()); },
+                onFailed
+            );
+        }
+
+        public void CreateLeaderboardParticipant(Guid leaderboardID, string participantID, string participantName, UnityAction<LeaderboardParticipant> onSuccess, UnityAction<string> onFailed)
+        {
+            CreateLeaderboardParticipantWithMetadata(leaderboardID, participantID, participantName, new Dictionary<string, string>(), onSuccess, onFailed);
+        }
+
+        public void CreateLeaderboardParticipantWithMetadata(Guid leaderboardID, string participantID, string participantName, Dictionary<string, string> metadata, UnityAction<LeaderboardParticipant> onSuccess, UnityAction<string> onFailed)
+        {
+            var req = new CreateParticipantRequest
+            {
+                leaderboard_id = leaderboardID.ToString(),
+                external_id = participantID,
+                name = participantName,
+                metadata = metadata,
+            };
+
+            POST<CreateParticipantRequest, CreateParticipantResponse>(
+                "/participants",
+                req,
+                (resp) => { onSuccess(resp.participant.ToLeaderboardParticipant()); },
                 onFailed
             );
         }

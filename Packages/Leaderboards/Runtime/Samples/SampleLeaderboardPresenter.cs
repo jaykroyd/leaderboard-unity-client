@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Leaderboards;
 using Leaderboards.Debug;
+using Unity.Plastic.Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -11,6 +12,7 @@ namespace Leaderboards.Samples
 {
     public class SampleLeaderboardPresenter : MonoBehaviour
     {
+        [SerializeField] private LeaderboardAPIConfigurationSO configuration = default;
         [SerializeField] private LeaderboardsView leaderboardsView = default;
         [SerializeField] private LeaderboardView leaderboardView = default;
 
@@ -34,13 +36,7 @@ namespace Leaderboards.Samples
         private void CreateLeaderboardAPI()
         {
             logger = new DefaultLogger();
-            leaderboardApi = new LeaderboardAPI(logger, new UnityWebRequestAPI.Config
-            {
-                BaseUrl = "http://localhost:8080",
-                Subdomain = "default",
-                ApiKey = "user",
-                Version = 1,
-            });
+            leaderboardApi = new LeaderboardAPI(logger, configuration);
         }
 
         private void SpawnLeaderboards(Leaderboard[] leaderboards)
@@ -73,9 +69,10 @@ namespace Leaderboards.Samples
 
                     var partModels = participants.Select(x => new ParticipantPresenterModel
                     {
-                        ID = x.ID,
+                        ID = x.ExternalID,
                         Name = x.Name,
                         Score = x.Score,
+                        Metadata = JsonConvert.SerializeObject(x.Metadata),
                     });
 
                     leaderboardView.Setup(lbModel, partModels.ToArray());

@@ -3,7 +3,7 @@
     public struct CreateLeaderboardRequest
     {
         public string name;
-        public long capacity;
+        public int capacity;
         public int mode;
     }
 }

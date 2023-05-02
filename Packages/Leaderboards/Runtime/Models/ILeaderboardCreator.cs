@@ -4,7 +4,7 @@ namespace Leaderboards
 {
     public interface ILeaderboardCreator
     {
-        void CreateHighscoreLeaderboard(string name, long capacity, UnityAction<Leaderboard> onSuccess, UnityAction<string> onFailed);
-        void CreateIncrementalLeaderboard(string name, long capacity, UnityAction<Leaderboard> onSuccess, UnityAction<string> onFailed);
+        void CreateHighscoreLeaderboard(string name, int capacity, UnityAction<Leaderboard> onSuccess, UnityAction<string> onFailed);
+        void CreateIncrementalLeaderboard(string name, int capacity, UnityAction<Leaderboard> onSuccess, UnityAction<string> onFailed);
     }
 }

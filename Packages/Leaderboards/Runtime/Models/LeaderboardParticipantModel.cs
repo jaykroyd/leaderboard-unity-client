@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Plastic.Newtonsoft.Json;
+using UnityEngine;
 
 namespace Leaderboards
 {
     public struct LeaderboardParticipantModel
     {
-        public string id;
-        public string name;
         public int rank;
+        public string leaderboard_id;
+        public string external_id;
+        public string name;        
         public long score;
-        public Dictionary<string, object> metadata;
+        public Dictionary<string, string> metadata;
         public string updated_at;
         public string created_at;
 
@@ -25,7 +28,8 @@ namespace Leaderboards
 
             return new LeaderboardParticipant
             {
-                ID = id,
+                LeaderboardID = Guid.Parse(leaderboard_id),
+                ExternalID = external_id,
                 Name = name,
                 Rank = rank,
                 Score = score,

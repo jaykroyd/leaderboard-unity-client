@@ -6,6 +6,6 @@ namespace Leaderboards
     {
         public Guid ID;
         public string Name;
-        public long Capacity;
+        public int Capacity;
     }
 }

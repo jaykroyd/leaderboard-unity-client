@@ -50,7 +50,7 @@ namespace Leaderboards
         public ParticipantCardView SpawnParticipant(ParticipantPresenterModel participant)
         {
             var p = Instantiate(participantPrefab, participantViewport);
-            p.Setup(participant.ID, participant.Name, participant.Score);
+            p.Setup(participant.ID, participant.Name, participant.Score, participant.Metadata);
             p.gameObject.SetActive(true);
             return p;
         }

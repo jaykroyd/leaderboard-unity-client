@@ -10,6 +10,7 @@ namespace Leaderboards.Debug
 {
     public class DebugPanel : MonoBehaviour
     {
+        [SerializeField] private LeaderboardAPIConfigurationSO configuration = default;
         [SerializeField] private Button buttonTemplate = default;
         [SerializeField] private TMP_InputField inputTemplate = default;
         [SerializeField] private LayoutGroup buttonsParent = default;
@@ -25,8 +26,8 @@ namespace Leaderboards.Debug
 
         private Vector2[] windowPositions = new Vector2[]
         {
-            new Vector2(0, -300),
-            new Vector2(400, -300),
+            new Vector2(0, -540),
+            new Vector2(400, -540),
         };
 
         private void Awake()
@@ -52,27 +53,27 @@ namespace Leaderboards.Debug
             {
                 UnityAction<Leaderboard> onSuccess = (leaderboard) =>
                 {
-                    logger.LogToUnity($"Request Successfull => Leaderboard:\n{leaderboard}");
+                    logger.LogToUnity($"Request Successful => Leaderboard:\n{leaderboard}");
                     OnLeaderboardCreated?.Invoke(leaderboard);
                 };
 
-                leaderboardApi.CreateHighscoreLeaderboard("highscore", 100, onSuccess, PrintFailed);
+                leaderboardApi.CreateHighscoreLeaderboard("highscore", 10, onSuccess, PrintFailed);
             });
             CreateButton("Create Incremental Leaderboard", delegate
             {
                 UnityAction<Leaderboard> onSuccess = (leaderboard) =>
                 {
-                    logger.LogToUnity($"Request Successfull => Leaderboard:\n{leaderboard}");
+                    logger.LogToUnity($"Request Successful => Leaderboard:\n{leaderboard}");
                     OnLeaderboardCreated?.Invoke(leaderboard);
                 };
 
-                leaderboardApi.CreateIncrementalLeaderboard("incremental", 100, onSuccess, PrintFailed);
+                leaderboardApi.CreateIncrementalLeaderboard("incremental", 10, onSuccess, PrintFailed);
             });
             CreateButtonWithInput("Get Leaderboard", (input) =>
             {
                 UnityAction<Leaderboard> onSuccess = (leaderboard) =>
                 {
-                    logger.LogToUnity($"Request Successfull => Leaderboard:\n{leaderboard}");
+                    logger.LogToUnity($"Request Successful => Leaderboard:\n{leaderboard}");
                     OnLeaderboardFetched?.Invoke(new Leaderboard[] { leaderboard });
                 };
 
@@ -82,7 +83,7 @@ namespace Leaderboards.Debug
             {
                 UnityAction<Leaderboard[]> onSuccess = (leaderboards) =>
                 {
-                    logger.LogToUnity($"Request Successfull => Leaderboards:");
+                    logger.LogToUnity($"Request Successful => Leaderboards:");
                     foreach (var lb in leaderboards)
                     {
                         logger.LogToUnity($"{lb}");
@@ -96,7 +97,7 @@ namespace Leaderboards.Debug
             {
                 UnityAction<Leaderboard[]> onSuccess = (leaderboards) =>
                 {
-                    logger.LogToUnity($"Request Successfull => Leaderboards:");
+                    logger.LogToUnity($"Request Successful => Leaderboards:");
                     foreach (var lb in leaderboards)
                     {
                         logger.LogToUnity($"{lb}");
@@ -110,7 +111,7 @@ namespace Leaderboards.Debug
             {
                 UnityAction<Leaderboard[]> onSuccess = (leaderboards) =>
                 {
-                    logger.LogToUnity($"Request Successfull => Leaderboards:");
+                    logger.LogToUnity($"Request Successful => Leaderboards:");
                     foreach (var lb in leaderboards)
                     {
                         logger.LogToUnity($"{lb}");
@@ -120,14 +121,24 @@ namespace Leaderboards.Debug
 
                 leaderboardApi.GetAllLeaderboards(onSuccess, PrintFailed);
             });
-            CreateButtonWithInput("Create Leaderboard Participant", (input) =>
+            CreateButtonWithInput("Create Participant", (input) =>
             {
                 UnityAction<LeaderboardParticipant> onSuccess = (participant) =>
                 {
-                    logger.LogToUnity($"Request Successfull => Participant: {participant}");
+                    logger.LogToUnity($"Request Successful => Participant: {participant}");
                 };
 
-                // leaderboardApi.CreateLeaderboardParticipant(new LeaderboardParticipant { }, onSuccess, PrintFailed);
+                leaderboardApi.CreateLeaderboardParticipant(Guid.Parse(input), Guid.NewGuid().ToString(), "Bob", onSuccess, PrintFailed);
+            });
+            CreateButtonWithInput("Create Participant (M)", (input) =>
+            {
+                UnityAction<LeaderboardParticipant> onSuccess = (participant) =>
+                {
+                    logger.LogToUnity($"Request Successful => Participant: {participant}");
+                };
+
+                leaderboardApi.CreateLeaderboardParticipantWithMetadata(Guid.Parse(input), Guid.NewGuid().ToString(), "Bob", 
+                    new Dictionary<string, string>() { { "emblem", "t_emblem_01"} },onSuccess, PrintFailed);
             });
         }
 
@@ -173,13 +184,7 @@ namespace Leaderboards.Debug
         private void CreateLeaderboardAPI()
         {
             logger = new DefaultLogger();
-            leaderboardApi = new LeaderboardAPI(logger, new UnityWebRequestAPI.Config
-            {
-                BaseUrl = "http://localhost:8080",
-                Subdomain = "default",
-                ApiKey = "user",
-                Version = 1,
-            });
+            leaderboardApi = new LeaderboardAPI(logger, configuration);
         }
 
         private void PrintFailed(string message)

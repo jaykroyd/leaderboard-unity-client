@@ -6,7 +6,7 @@ namespace Leaderboards
     {
         public Guid ID { get; internal set; }
         public string Name { get; internal set; }
-        public long Capacity { get; internal set; }
+        public int Capacity { get; internal set; }
         public int Mode { get; internal set; }
         public DateTime UpdatedAt { get; internal set; }
         public DateTime CreatedAt { get; internal set; }

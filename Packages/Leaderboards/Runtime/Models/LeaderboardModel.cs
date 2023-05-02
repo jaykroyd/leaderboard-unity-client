@@ -7,7 +7,7 @@ namespace Leaderboards
     {
         public string id;
         public string name;
-        public long capacity;
+        public int capacity;
         public int mode;
         public string updated_at;
         public string created_at;

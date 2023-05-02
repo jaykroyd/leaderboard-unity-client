@@ -5,5 +5,6 @@
         public string ID;
         public string Name;
         public long Score;
+        public string Metadata;
     }
 }
