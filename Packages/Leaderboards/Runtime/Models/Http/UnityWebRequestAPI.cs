@@ -60,6 +60,27 @@ namespace Leaderboards
             DoRequest(www, onSuccess, onFailed);
         }
 
+        public void PUT<T1, T2>(string endpoint, T1 bodyModel, UnityAction<T2> onSuccess, UnityAction<string> onFailed) where T2 : IResponse, new()
+        {
+            var url = BuildURL(endpoint);
+            UnityWebRequest www = CreateUnityWebPutRequest(bodyModel, url);
+            DoRequest(www, onSuccess, onFailed);
+        }
+
+        public void PATCH<T1, T2>(string endpoint, T1 bodyModel, UnityAction<T2> onSuccess, UnityAction<string> onFailed) where T2 : IResponse, new()
+        {
+            var url = BuildURL(endpoint);
+            UnityWebRequest www = CreateUnityWebPatchRequest(bodyModel, url);
+            DoRequest(www, onSuccess, onFailed);
+        }
+
+        public void DELETE<T1, T2>(string endpoint, T1 bodyModel, UnityAction<T2> onSuccess, UnityAction<string> onFailed) where T2 : IResponse, new()
+        {
+            var url = BuildURL(endpoint);
+            UnityWebRequest www = CreateUnityWebDeleteRequest(bodyModel, url);
+            DoRequest(www, onSuccess, onFailed);
+        }
+
         private void DoRequest<T2>(UnityWebRequest www, UnityAction<T2> onSuccess, UnityAction<string> onFailed) where T2 : IResponse, new()
         {
             OnRequest(www.url);
@@ -97,7 +118,27 @@ namespace Leaderboards
 
         private UnityWebRequest CreateUnityWebPostRequest<T1>(T1 bodyModel, string url)
         {
-            var www = new UnityWebRequest(url, UnityWebRequest.kHttpVerbPOST);
+            return CreateUnityWebRequestWithBody(UnityWebRequest.kHttpVerbPOST, bodyModel, url);
+        }
+
+        private UnityWebRequest CreateUnityWebPutRequest<T1>(T1 bodyModel, string url)
+        {
+            return CreateUnityWebRequestWithBody(UnityWebRequest.kHttpVerbPUT, bodyModel, url);
+        }
+
+        private UnityWebRequest CreateUnityWebPatchRequest<T1>(T1 bodyModel, string url)
+        {
+            return CreateUnityWebRequestWithBody("PATCH", bodyModel, url);
+        }
+
+        private UnityWebRequest CreateUnityWebDeleteRequest<T1>(T1 bodyModel, string url)
+        {
+            return CreateUnityWebRequestWithBody(UnityWebRequest.kHttpVerbDELETE, bodyModel, url);
+        }
+
+        private UnityWebRequest CreateUnityWebRequestWithBody<T1>(string method, T1 bodyModel, string url)
+        {
+            var www = new UnityWebRequest(url, method);
             var body = BuildBody<T1>(bodyModel);
             www.uploadHandler = new UploadHandlerRaw(body);
             www.downloadHandler = new DownloadHandlerBuffer();

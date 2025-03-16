@@ -142,6 +142,21 @@ namespace Leaderboards
                 onFailed
             );
         }
+
+        public void UpdateParticipantScore(Guid leaderboardID, string participantID, int score, UnityAction<LeaderboardParticipant> onSuccess, UnityAction<string> onFailed)
+        {
+            var req = new UpdateParticipantScoreRequest
+            {
+                score = score,
+            };
+
+            PATCH<UpdateParticipantScoreRequest, UpdateParticipantScoreResponse>(
+                $"/leaderboards/{leaderboardID}/participants/{participantID}/score",
+                req,
+                (resp) => { onSuccess(resp.participant.ToLeaderboardParticipant()); },
+                onFailed
+            );
+        }
         #endregion
     }
 }

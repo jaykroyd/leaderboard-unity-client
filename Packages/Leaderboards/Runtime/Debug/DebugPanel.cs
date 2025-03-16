@@ -79,34 +79,34 @@ namespace Leaderboards.Debug
 
                 leaderboardApi.GetLeaderboard(Guid.Parse(input), onSuccess, PrintFailed);
             });
-            CreateButton("Get Highscore Leaderboards", delegate
-            {
-                UnityAction<Leaderboard[]> onSuccess = (leaderboards) =>
-                {
-                    logger.LogToUnity($"Request Successful => Leaderboards:");
-                    foreach (var lb in leaderboards)
-                    {
-                        logger.LogToUnity($"{lb}");
-                    }
-                    OnLeaderboardFetched?.Invoke(leaderboards);
-                };
+            //CreateButton("Get Highscore Leaderboards", delegate
+            //{
+            //    UnityAction<Leaderboard[]> onSuccess = (leaderboards) =>
+            //    {
+            //        logger.LogToUnity($"Request Successful => Leaderboards:");
+            //        foreach (var lb in leaderboards)
+            //        {
+            //            logger.LogToUnity($"{lb}");
+            //        }
+            //        OnLeaderboardFetched?.Invoke(leaderboards);
+            //    };
 
-                leaderboardApi.GetHighscoreLeaderboards(onSuccess, PrintFailed);
-            });
-            CreateButton("Get Incremental Leaderboards", delegate
-            {
-                UnityAction<Leaderboard[]> onSuccess = (leaderboards) =>
-                {
-                    logger.LogToUnity($"Request Successful => Leaderboards:");
-                    foreach (var lb in leaderboards)
-                    {
-                        logger.LogToUnity($"{lb}");
-                    }
-                    OnLeaderboardFetched?.Invoke(leaderboards);
-                };
+            //    leaderboardApi.GetHighscoreLeaderboards(onSuccess, PrintFailed);
+            //});
+            //CreateButton("Get Incremental Leaderboards", delegate
+            //{
+            //    UnityAction<Leaderboard[]> onSuccess = (leaderboards) =>
+            //    {
+            //        logger.LogToUnity($"Request Successful => Leaderboards:");
+            //        foreach (var lb in leaderboards)
+            //        {
+            //            logger.LogToUnity($"{lb}");
+            //        }
+            //        OnLeaderboardFetched?.Invoke(leaderboards);
+            //    };
 
-                leaderboardApi.GetIncrementalLeaderboards(onSuccess, PrintFailed);
-            });
+            //    leaderboardApi.GetIncrementalLeaderboards(onSuccess, PrintFailed);
+            //});
             CreateButton("Get All Leaderboards", delegate
             {
                 UnityAction<Leaderboard[]> onSuccess = (leaderboards) =>
@@ -139,6 +139,15 @@ namespace Leaderboards.Debug
 
                 leaderboardApi.CreateLeaderboardParticipantWithMetadata(Guid.Parse(input), Guid.NewGuid().ToString(), "Bob", 
                     new Dictionary<string, string>() { { "emblem", "t_emblem_01"} },onSuccess, PrintFailed);
+            });
+            CreateButtonWith2Inputs("Update Score", (input1, input2) =>
+            {
+                UnityAction<LeaderboardParticipant> onSuccess = (participant) =>
+                {
+                    logger.LogToUnity($"Request Successful => Participant: {participant}");
+                };
+
+                leaderboardApi.UpdateParticipantScore(Guid.Parse(input1), input2, 10, onSuccess, PrintFailed);
             });
         }
 
@@ -178,6 +187,27 @@ namespace Leaderboards.Debug
             CreateButton(buttonLabel, delegate
             {
                 onClick?.Invoke(input.text);
+            });
+        }
+
+        private void CreateButtonWith2Inputs(string buttonLabel, UnityAction<string, string> onClick)
+        {
+            var input1 = CreateInputField();
+            var input2 = CreateInputField();
+            CreateButton(buttonLabel, delegate
+            {
+                onClick?.Invoke(input1.text, input2.text);
+            });
+        }
+
+        private void CreateButtonWith3Inputs(string buttonLabel, UnityAction<string, string, string> onClick)
+        {
+            var input1 = CreateInputField();
+            var input2 = CreateInputField();
+            var input3 = CreateInputField();
+            CreateButton(buttonLabel, delegate
+            {
+                onClick?.Invoke(input1.text, input2.text, input3.text);
             });
         }
 
